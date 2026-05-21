@@ -1,0 +1,61 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment variables - NEVER commit secrets
+.env
+.env.local
+.env.production
+
+# Data files (too large for git, document how to obtain in README)
+data/raw/*.csv
+data/raw/*.json
+data/processed/*.jsonl
+data/processed/*.parquet
+
+# Keep directory structure
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/eval/.gitkeep
+
+# Vector DB local storage
+chroma_db/
+qdrant_storage/
+
+# Model cache
+models/
+.cache/
+
+# Langfuse local
+langfuse-data/
+
+# Docker
+docker-compose.override.yml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Notebooks checkpoints
+.ipynb_checkpoints/
+
+# Test / coverage
+.coverage
+htmlcov/
+.pytest_cache/

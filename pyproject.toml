@@ -1,0 +1,63 @@
+[project]
+name = "bank-complaint-rag"
+version = "0.1.0"
+description = "Production-grade RAG system for bank complaint classification and duplicate detection"
+requires-python = ">=3.11"
+dependencies = [
+    # Core LLM/RAG
+    "langchain>=0.3",
+    "langgraph>=0.2",
+    "langchain-openai>=0.2",
+    "langchain-community>=0.3",
+
+    # Embeddings & Retrieval
+    "sentence-transformers>=3.0",
+    "rank-bm25>=0.2",
+
+    # Vector DB
+    "chromadb>=0.5",            # Local dev
+    "qdrant-client>=1.11",      # Production
+
+    # Reranker
+    "cross-encoder>=0.0.1",
+
+    # API
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "pydantic>=2.0",
+
+    # Observability
+    "langfuse>=2.0",
+
+    # Data processing
+    "pandas>=2.2",
+    "python-dotenv>=1.0",
+
+    # Utilities
+    "httpx>=0.27",
+    "tenacity>=8.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.24",
+    "ruff>=0.6",
+    "mypy>=1.11",
+    "pre-commit>=3.8",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.backends._legacy:_Backend"
