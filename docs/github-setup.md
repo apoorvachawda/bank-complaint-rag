@@ -49,30 +49,26 @@ Labels: `phase-1-data`, `eval`
 
 Tasks:
 - [ ] Design labeling schema (see below)
-- [ ] Select 80 diverse complaints from CFPB data
-- [ ] Label 40 as "has duplicate in corpus" (manually find pairs)
-- [ ] Label 20 as complaint vs non-complaint edge cases
-- [ ] Label 20 with expected withdrawal decision + reason
+- [ ] Select 80 diverse complaints from CFPB data (from deduplicated corpus)
+- [ ] Label similar complaint pairs for retrieval eval (Recall@k ground truth)
+- [ ] Record expected resolution outcome from CFPB `company_response` field (no manual labeling needed)
 - [ ] Save as `data/eval/eval_set.json` with schema documented
 - [ ] Write `src/evaluation/load_eval.py` to load and validate the eval set
 
 Labeling schema:
 ```json
 {
-  "id": "eval_001",
-  "query_complaint": "...",
-  "expected_classification": "complaint",
-  "expected_duplicate_ids": ["complaint_123", "complaint_456"],
-  "expected_withdrawal": true,
-  "expected_withdrawal_reason": "duplicate",
-  "metadata": {
-    "product_category": "credit_card",
-    "difficulty": "hard"
-  }
+  "eval_id": "eval_001",
+  "query_complaint_id": "12345678",
+  "query_narrative": "...",
+  "query_product": "Credit card or prepaid card",
+  "query_issue": "Problem with a purchase shown on your statement",
+  "expected_resolution": "Closed with monetary relief",
+  "similar_complaint_ids": ["complaint_123", "complaint_456"]
 }
 ```
 
-Acceptance: `data/eval/eval_set.json` exists with 80 entries, passes schema validation, has reasonable label distribution.
+Acceptance: `data/eval/eval_set.json` exists with 80 entries, passes schema validation, has reasonable distribution across product categories and resolution outcomes.
 
 ---
 
@@ -156,9 +152,9 @@ Implement Stage 2: ECN/account number lookup.
 Labels: `phase-4-pipeline`
 Implement Stage 3: hybrid retrieval as a LangGraph node.
 
-**Issue #13: LangGraph pipeline — withdrawal analysis node**
+**Issue #13: LangGraph pipeline — resolution intelligence node**
 Labels: `phase-4-pipeline`
-Implement Stage 4: LLM-based withdrawal recommendation.
+Implement Stage 3: LLM analyzes original complaint + retrieved similar complaints, predicts likely resolution outcome (company_response category) with confidence score and cited evidence.
 
 **Issue #14: Langfuse integration**
 Labels: `phase-5-observability`
