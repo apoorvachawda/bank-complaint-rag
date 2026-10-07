@@ -27,6 +27,7 @@ env/
 data/raw/*.csv
 data/raw/*.json
 data/processed/*.jsonl
+data/eval/embeddings_cache.npz
 data/processed/*.parquet
 
 # Keep directory structure
