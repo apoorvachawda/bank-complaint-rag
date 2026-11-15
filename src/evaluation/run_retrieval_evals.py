@@ -8,8 +8,14 @@ Usage:
 """
 
 import argparse
+from pathlib import Path
 
-from src.evaluation.retrieval_eval import evaluate_retrieval, load_eval_set, print_results
+from src.evaluation.retrieval_eval import (
+    EVAL_SET_PATH,
+    evaluate_retrieval,
+    load_eval_set,
+    print_results,
+)
 from src.retrieval.embedder import DEFAULT_MODEL
 from src.retrieval.factory import (
     DEFAULT_BM25_PATH,
@@ -25,12 +31,13 @@ def main():
     parser.add_argument("--model", default=DEFAULT_MODEL)
     parser.add_argument("--collection", default=DEFAULT_COLLECTION)
     parser.add_argument("--bm25-path", default=DEFAULT_BM25_PATH)
+    parser.add_argument("--eval-set", type=Path, default=EVAL_SET_PATH)
     args = parser.parse_args()
 
     stack = make_retriever(
         args.retriever, model=args.model, collection=args.collection, bm25_path=args.bm25_path
     )
-    results = evaluate_retrieval(load_eval_set(), stack.retrieve)
+    results = evaluate_retrieval(load_eval_set(args.eval_set), stack.retrieve)
 
     label = args.retriever
     if args.retriever != "bm25":
