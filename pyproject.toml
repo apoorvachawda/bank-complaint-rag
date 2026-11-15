@@ -27,6 +27,7 @@ dependencies = [
     "langfuse>=2.0",
 
     # Data processing
+    "numpy>=1.26",
     "pandas>=2.2",
     "scikit-learn>=1.5",
     "python-dotenv>=1.0",

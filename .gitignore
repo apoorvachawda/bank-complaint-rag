@@ -60,3 +60,6 @@ Thumbs.db
 .coverage
 htmlcov/
 .pytest_cache/
+
+# BM25 index pickle (rebuild with python -m src.data.build_bm25)
+data/processed/*.pkl

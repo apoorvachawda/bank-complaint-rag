@@ -3,7 +3,7 @@ import logging
 
 import pandas as pd
 
-from src.retrieval.embedder import Embedder
+from src.retrieval.embedder import DEFAULT_MODEL, Embedder
 from src.retrieval.vector_store import VectorStore
 
 logger = logging.getLogger(__name__)
@@ -29,7 +29,6 @@ METADATA_FIELDS = [
 
 BATCH_SIZE = 5_000  # embed + upsert chunk size
 COLLECTION_NAME = "complaints"
-EMBEDDING_DIM = 384
 
 
 def read_json(file_path: str) -> pd.DataFrame:
@@ -53,6 +52,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", default="data/processed/complaints_deduped.jsonl")
     parser.add_argument("--collection", default=COLLECTION_NAME)
+    parser.add_argument("--model", default=DEFAULT_MODEL)
     parser.add_argument(
         "--reset",
         action="store_true",
@@ -60,8 +60,8 @@ def main():
     )
     args = parser.parse_args()
 
-    embedder = Embedder()
-    vector_store = VectorStore(collection_name=args.collection, embedding_dim=EMBEDDING_DIM)
+    embedder = Embedder(model_name=args.model)
+    vector_store = VectorStore(collection_name=args.collection, embedding_dim=embedder.dim)
 
     if args.reset:
         logger.info("Resetting collection %s", args.collection)
@@ -76,7 +76,7 @@ def main():
         chunk_df = df.iloc[chunk_start : chunk_start + BATCH_SIZE]
 
         narratives = chunk_df[NARRATIVE_FIELD].astype(str).tolist()
-        vectors = embedder.embed_batch(narratives)
+        vectors = embedder.embed_passages(narratives)
         metadatas = [build_metadata(row) for _, row in chunk_df.iterrows()]
         ids = chunk_df[ID_FIELD].astype(str).tolist()
 
