@@ -1,0 +1,17 @@
+# Hugging Face Spaces runtime deps (Spaces installs requirements.txt, not pyproject).
+# Local/dev installs use `pip install -e ".[dev]"` — keep this list in sync with
+# pyproject.toml runtime deps actually imported on the deployment path.
+fastapi>=0.115
+uvicorn[standard]>=0.30
+gradio>=5.0
+pydantic>=2.0
+python-dotenv>=1.0
+tenacity>=8.0
+numpy>=1.26
+rank-bm25>=0.2
+sentence-transformers>=3.0
+qdrant-client>=1.11
+langgraph>=0.2
+langfuse>=4.0
+openai>=1.0
+huggingface-hub>=0.26
