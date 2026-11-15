@@ -80,3 +80,41 @@ category most affected (28.3% removal rate) due to Cash App and Zelle template c
 Retrieval quality improves because genuine similar complaints are no longer crowded out by template
 copies. Grouping by (product, issue) before TF-IDF makes the approach tractable at 100k scale
 and avoids false matches across unrelated categories.
+
+---
+
+## ADR-008: Cosine distance + normalized embeddings (not Chroma's default L2)
+
+**Date:** 2026-11-16
+**Context:** The first ingestion created the Chroma collection with defaults, which means L2
+distance. Our embedder (`all-MiniLM-L6-v2`) did not normalize vectors. Sentence-transformer
+models are trained with a cosine-similarity objective — L2 ranking over unnormalized vectors
+produces a subtly different nearest-neighbor ordering than the model was trained to optimize,
+which would have made the dense baseline silently off-model. Caught during code review before
+any baseline numbers were recorded.
+**Decision:** Create the collection with `hnsw:space: cosine` AND normalize embeddings at encode
+time (`normalize_embeddings=True`). Either alone is sufficient (cosine on normalized vectors
+equals L2 ranking on normalized vectors), but doing both makes the intent self-documenting and
+robust to either side being changed later. Since Chroma fixes the distance metric at collection
+creation time, this required a full re-ingestion (`ingest.py --reset`).
+**Consequences:** Baseline recall numbers are measured against the metric the model was trained
+for. Ingestion also became idempotent (upsert instead of add) and batch-wise (embed + insert per
+5k chunk instead of embedding all 92k upfront), so re-runs are safe and a crash loses at most one
+batch.
+
+---
+
+## ADR-009: MiniLM as the v0 baseline embedding model, BGE-small as the measured upgrade
+
+**Date:** 2026-11-16
+**Context:** The target embedding model is BGE-small-en-v1.5 (stronger retrieval benchmarks at
+the same 384 dimensions). The code currently uses all-MiniLM-L6-v2. Rather than treating this as
+drift, it is the deliberate eval-driven path: establish a defensible baseline with the simpler
+model first, then upgrade and measure the delta.
+**Decision:** Record the dense-only baseline with MiniLM, then swap to BGE-small-en-v1.5 and
+report the recall improvement in the experiment log. Note for the swap: BGE models expect a
+query-side prefix ("Represent this sentence for searching relevant passages: ") at search time
+but NOT at index time — omitting it silently degrades recall.
+**Consequences:** Every retrieval improvement (BGE, BM25 hybrid, reranker) has a measured
+before/after against the same eval set, which is the core eval-first story of this project
+(ADR-003). The embedding dimension stays 384, so no vector store schema change on upgrade.

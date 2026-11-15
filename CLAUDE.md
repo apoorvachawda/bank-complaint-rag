@@ -55,7 +55,7 @@ ingestion — they would dominate retrieval results. See ADR-007.
 
 ## Tech Stack
 - Python 3.11+, LangGraph, FastAPI
-- Embeddings: sentence-transformers (BGE-small-en-v1.5)
+- Embeddings: sentence-transformers — all-MiniLM-L6-v2 as the v0 baseline, BGE-small-en-v1.5 as the measured upgrade (ADR-009). Vectors are normalized; vector store uses cosine distance (ADR-008).
 - Vector DB: ChromaDB (dev) / Qdrant (prod)
 - Reranker: cross-encoder/ms-marco-MiniLM-L-6-v2
 - LLM: GPT-4o (enrichment + resolution intelligence)
@@ -112,4 +112,5 @@ ruff format src/ tests/
 # Data pipeline
 python -m src.data.download_cfpb
 python -m src.data.deduplicate_corpus
+python -m src.data.ingest --reset   # embed + load into ChromaDB (--reset drops the collection first)
 ```
