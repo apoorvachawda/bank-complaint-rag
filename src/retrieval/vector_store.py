@@ -69,6 +69,14 @@ class VectorStore:
         raw = self.collection.get(ids=ids, include=["documents"])
         return dict(zip(raw["ids"], raw["documents"]))
 
+    def get_records(self, ids: list[str]) -> dict[str, dict]:
+        """Fetch narrative + metadata by complaint id, keyed by id."""
+        raw = self.collection.get(ids=ids, include=["documents", "metadatas"])
+        return {
+            id_: {"document": doc, "metadata": meta}
+            for id_, doc, meta in zip(raw["ids"], raw["documents"], raw["metadatas"])
+        }
+
     def count(self) -> int:
         return self.collection.count()
 
