@@ -10,6 +10,7 @@ import os
 from dotenv import load_dotenv
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, PointStruct, VectorParams
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 from src.retrieval.vector_store import SearchResult
 
@@ -35,6 +36,9 @@ class QdrantStore:
                 vectors_config=VectorParams(size=self.embedding_dim, distance=Distance.COSINE),
             )
 
+    # Cloud round-trips fail transiently (server disconnects, LB resets);
+    # upserts are idempotent so blind retry is safe.
+    @retry(wait=wait_exponential(min=2, max=30), stop=stop_after_attempt(5))
     def upsert(
         self,
         ids: list[str],

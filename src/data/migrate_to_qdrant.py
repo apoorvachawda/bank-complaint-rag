@@ -21,6 +21,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--collection", default="complaints_bge")
     parser.add_argument("--embedding-dim", type=int, default=384)
+    parser.add_argument(
+        "--start-offset",
+        type=int,
+        default=0,
+        help="Resume after a partial run; upserts are idempotent so overlap is safe",
+    )
     args = parser.parse_args()
 
     chroma = VectorStore(collection_name=args.collection, embedding_dim=args.embedding_dim)
@@ -30,7 +36,7 @@ def main():
     total = chroma.count()
     logger.info("Migrating %d points from Chroma to Qdrant Cloud", total)
 
-    migrated = 0
+    migrated = args.start_offset
     while migrated < total:
         batch = chroma.collection.get(
             limit=BATCH_SIZE,

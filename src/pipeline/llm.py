@@ -31,11 +31,16 @@ def get_client() -> OpenAI:
         _client = OpenAI(
             base_url=GROQ_BASE_URL,
             api_key=os.environ["GROQ_API_KEY"],
+            # Fail dead sockets fast; tenacity owns retries (a laptop sleeping
+            # mid-call otherwise hangs the batch for the SDK's 600s default)
+            timeout=60,
+            max_retries=0,
         )
     return _client
 
 
-@retry(wait=wait_exponential(min=2, max=30), stop=stop_after_attempt(5))
+# Backoff must outlast Groq free-tier TPM windows (60s), not just blips
+@retry(wait=wait_exponential(min=2, max=60), stop=stop_after_attempt(7))
 def chat_json(
     system: str,
     user: str,

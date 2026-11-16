@@ -118,3 +118,46 @@ but NOT at index time — omitting it silently degrades recall.
 **Consequences:** Every retrieval improvement (BGE, BM25 hybrid, reranker) has a measured
 before/after against the same eval set, which is the core eval-first story of this project
 (ADR-003). The embedding dimension stays 384, so no vector store schema change on upgrade.
+
+---
+
+## ADR-010: Eval set v2 — pooled candidates to fix retriever-circular ground truth
+
+**Date:** 2026-11-16
+**Context:** First cross-retriever results on eval set v1 were nonsensical: BM25 scored 0.07
+recall@5 (while its actual top-5 results were topically coherent on inspection) and BGE-small
+scored 0.29 — half of MiniLM's 0.58 — contradicting every public retrieval benchmark. Root
+cause: v1's candidate pairs were mined exclusively from MiniLM dense top-20 neighbors before
+LLM verification. Ground truth could therefore never contain a complaint that only BM25 or BGE
+retrieves; MiniLM dense won by construction. This is pooling bias, a known failure mode of IR
+test collections.
+**Decision:** Build eval set v2 with TREC-style pooled relevance judgments: the same 80 queries
+and the same LLM-judge prompt, but candidates pooled from MiniLM-dense ∪ BGE-dense ∪ BM25
+top-15 each. Two deliberate methodology fixes: the judge no longer sees per-candidate cosine
+similarity (v1 showed it, anchoring the judge toward dense candidates), and the judge model is
+gpt-oss-120b (v1's llama-3.3-70b was retired from Groq). v1 stays in git; both sets' numbers
+are reported in eval-results.md. Alternatives considered: keeping v1 with a documented caveat
+(cheap, but makes hybrid-retrieval improvements unmeasurable), or a label-free proxy metric
+(same-product+issue match — weak evidence).
+**Consequences:** Cross-retriever comparison becomes valid; the v1 numbers remain as the record
+of the discovery. Residual caveats: labels are LLM-judged (same as v1, so methodologically
+consistent), and any retriever NOT in the pool (e.g. a future ColBERT) would face the same bias
+and requires re-pooling. Catching a circular evaluator is itself the strongest evidence the
+eval-first process works.
+
+---
+
+## ADR-011: Chroma → Qdrant Cloud migration, verified by eval parity
+
+**Date:** 2026-11-16
+**Context:** ADR-002 planned Chroma for dev, Qdrant for deployment. The deployed container
+cannot ship a 1.8GB local Chroma dir, and Space disks are non-persistent.
+**Decision:** Migrate by copying stored vectors out of Chroma (no re-embedding) in batches of
+500 with idempotent upserts and exponential-backoff retries (cloud round-trips fail
+transiently; one mid-run disconnect required a resumable --start-offset). Point ids are the
+numeric CFPB complaint ids; narrative lives in the payload alongside filter metadata.
+**Consequences:** 92,045/92,045 points migrated. Post-migration eval: recall@5 identical to
+the local backend (0.2883 vs 0.2883 on dense-BGE/v1); recall@10 differed by 0.0013 — a single
+tie-break flip from float score ordering across HNSW implementations, i.e. expected variance,
+not data loss. The backend is a one-env-var swap (VECTOR_BACKEND), so local eval runs stay free
+while deployment reads Qdrant Cloud.

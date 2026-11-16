@@ -80,6 +80,14 @@ def main():
     queries = load_eval_set(args.v1)
     query_ids = {q.query_complaint_id for q in queries}
 
+    # Resume from checkpoint: judged queries are expensive (Groq rate limits)
+    entries = []
+    if args.output.exists():
+        entries = json.loads(args.output.read_text())
+        done_ids = {e["query_complaint_id"] for e in entries}
+        queries = [q for q in queries if q.query_complaint_id not in done_ids]
+        logger.info("Resuming: %d already judged, %d remaining", len(entries), len(queries))
+
     logger.info("Building the three candidate retrievers...")
     minilm = make_retriever(
         "dense", model="sentence-transformers/all-MiniLM-L6-v2", collection="complaints"
@@ -87,7 +95,6 @@ def main():
     bge = make_retriever("dense", model="BAAI/bge-small-en-v1.5", collection="complaints_bge")
     bm25 = make_retriever("bm25")
 
-    entries = []
     for i, q in enumerate(queries, 1):
         pooled: list[str] = []
         for stack in (minilm, bge, bm25):
@@ -135,7 +142,7 @@ def main():
         if i % 10 == 0:
             logger.info("Judged %d/%d queries (checkpoint save)", i, len(queries))
             args.output.write_text(json.dumps(entries, indent=2, ensure_ascii=False))
-        time.sleep(0.5)
+        time.sleep(3.0)  # pace under Groq free-tier TPM with ~4k-token judge prompts
 
     args.output.write_text(json.dumps(entries, indent=2, ensure_ascii=False))
 
