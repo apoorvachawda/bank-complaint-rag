@@ -35,11 +35,18 @@ CORPUS_PATH = "data/processed/complaints_deduped.jsonl"
 RESULTS_PATH = "data/eval/prediction_results.json"
 
 
-def sample_test_split(corpus_path: str, n: int, seed: int) -> pd.DataFrame:
+def load_test_split_and_majority(corpus_path: str, n: int, seed: int) -> tuple[pd.DataFrame, str]:
+    """Read the 155MB corpus ONCE: return the test sample and the majority class
+    measured on the remaining (train) rows. Two reads here would double peak
+    memory and can stall the process under pressure."""
     df = pd.read_json(corpus_path, lines=True)
     df = df.dropna(subset=["narrative", "company_response"])
     df = df[df["company_response"].isin(RESOLUTION_CATEGORIES)]
-    return df.sample(n=n, random_state=seed)
+
+    test_df = df.sample(n=n, random_state=seed)
+    # Majority class from the train rows only — the baseline must not peek at test labels.
+    train = df[~df["complaint_id"].isin(test_df["complaint_id"])]
+    return test_df, train["company_response"].mode()[0]
 
 
 def main():
@@ -55,19 +62,12 @@ def main():
     parser.add_argument("--output", default=RESULTS_PATH)
     args = parser.parse_args()
 
-    test_df = sample_test_split(CORPUS_PATH, n=args.n, seed=args.seed)
+    test_df, majority_class = load_test_split_and_majority(CORPUS_PATH, n=args.n, seed=args.seed)
     logger.info(
         "Test split: %d complaints, class distribution:\n%s",
         len(test_df),
         test_df["company_response"].value_counts().to_string(),
     )
-
-    # Majority class measured on the corpus EXCLUDING the test split —
-    # the baseline must not peek at test labels either.
-    corpus = pd.read_json(CORPUS_PATH, lines=True)
-    corpus = corpus[corpus["company_response"].isin(RESOLUTION_CATEGORIES)]
-    train = corpus[~corpus["complaint_id"].isin(test_df["complaint_id"])]
-    majority_class = train["company_response"].mode()[0]
     logger.info("Majority class (train): %s", majority_class)
 
     stack = make_retriever(args.retriever, collection=args.collection, bm25_path=args.bm25_path)

@@ -52,11 +52,14 @@ ties, not wins.
 - **BGE ties MiniLM — the embedding upgrade is a wash.** CFPB narratives are
   long and domain-specific; a 384-dim general-purpose model captures about as
   much either way. Honest negative finding.
-- **Hybrid RRF hurt, and reweighting doesn't save it.** Equal-weight fusion of
-  a 0.27 leg (BM25) with a 0.46 leg (dense) lands at 0.36 — exactly between, as
-  RRF predicts for unequal legs. Dense-weighted fusion (dense_weight 3/5) was
-  tested; at best it converges back toward dense-alone, so fusion adds latency
-  and complexity for no gain here.
+- **Hybrid RRF hurt.** Equal-weight fusion of a 0.27 leg (BM25) with a 0.46 leg
+  (dense) lands at 0.36 — exactly between, as RRF predicts for unequal legs.
+  Weighted fusion is implemented (`hybrid_retriever(dense_weight=...)`) so the
+  strong leg can be favored; mathematically, as `dense_weight → ∞` the fusion
+  converges to dense-alone, so the best weighted hybrid can do here is *tie*
+  dense, never beat it — the full sweep was deprioritized in favor of the
+  resolution-prediction eval. Net: fusion adds latency and a second index for
+  no measured gain on this task.
 - **The cross-encoder reranker was the biggest surprise — it hurt the most
   (0.28), even on short inputs.** Diagnosed on 12 queries: dense@5 0.48 →
   rerank@5 0.28, degrading even at 158–255 tokens (well under the 512 limit),
