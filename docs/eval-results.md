@@ -34,14 +34,46 @@ kept as the record of the discovery, not for cross-retriever conclusions.
 
 | Date | Experiment | Recall@5 | Recall@10 | MRR@10 | Money-transfer R@5 | Notes |
 |------|-----------|----------|-----------|--------|--------------------|-------|
-| _pending_ | Dense MiniLM | - | - | - | - | |
-| _pending_ | Dense BGE-small | - | - | - | - | |
-| _pending_ | BM25-only | - | - | - | - | |
-| _pending_ | Hybrid (RRF, dense+BM25) | - | - | - | - | |
-| _pending_ | Hybrid + BGE reranker | - | - | - | - | |
+| 2026-11-17 | Dense MiniLM | 0.4573 | 0.4929 | 0.7059 | 0.4594 | Was 0.58 on biased v1 — drop confirms the bias |
+| 2026-11-17 | Dense BGE-small | 0.4556 | 0.4625 | 0.6295 | 0.4375 | **Ties MiniLM** (Δ 0.002, within noise) — negative finding for the upgrade |
+| 2026-11-17 | BM25-only | 0.2723 | 0.2539 | 0.4415 | 0.2031 | 4× its biased-v1 score (0.07); strong on Mortgage (0.48) |
+| 2026-11-17 | Hybrid RRF (BGE+BM25, equal weight) | 0.3646 | 0.3723 | 0.5815 | 0.3375 | **Worse than dense alone** — equal RRF drags the strong leg down |
+| 2026-11-22 | Hybrid + BGE reranker | 0.2823 | 0.3055 | 0.4967 | 0.3031 | **Worst of all** — cross-encoder is the wrong tool here (see below) |
 
-With 80 queries, differences of a few points are within noise — small deltas
-are reported as ties, not wins.
+**Winner: dense-only (MiniLM or BGE-small, tied at ~0.46 recall@5).** The two
+"sophisticated" additions — hybrid fusion and cross-encoder reranking — both
+*reduced* recall. Deployed retriever is dense-only BGE-small (already migrated
+to Qdrant; ties MiniLM, and dropping the reranker removes ~1.1GB from the
+deployment image). With 80 queries, few-point deltas are noise — reported as
+ties, not wins.
+
+### Why the fancy techniques lost (the interesting part)
+
+- **BGE ties MiniLM — the embedding upgrade is a wash.** CFPB narratives are
+  long and domain-specific; a 384-dim general-purpose model captures about as
+  much either way. Honest negative finding.
+- **Hybrid RRF hurt, and reweighting doesn't save it.** Equal-weight fusion of
+  a 0.27 leg (BM25) with a 0.46 leg (dense) lands at 0.36 — exactly between, as
+  RRF predicts for unequal legs. Dense-weighted fusion (dense_weight 3/5) was
+  tested; at best it converges back toward dense-alone, so fusion adds latency
+  and complexity for no gain here.
+- **The cross-encoder reranker was the biggest surprise — it hurt the most
+  (0.28), even on short inputs.** Diagnosed on 12 queries: dense@5 0.48 →
+  rerank@5 0.28, degrading even at 158–255 tokens (well under the 512 limit),
+  so truncation of long pairs is only a secondary effect. Root cause is a
+  **model–task mismatch**: `bge-reranker-base` is trained for query→passage
+  *relevance* (asymmetric: short query, long answer passage), but this task is
+  narrative↔narrative *similarity* (symmetric: long complaint ↔ similar long
+  complaint). The reranker's "is this passage relevant to this question" signal
+  does not match "do these two complaints describe the same problem." The dense
+  bi-encoders are trained with a symmetric similarity objective — the right
+  tool. A similarity-tuned reranker could help, but that is out of scope; the
+  measured call is to ship dense-only.
+
+**The headline story isn't "I built hybrid + reranking." It's "I built an eval
+that caught its own circularity (v1→v2), then used the fair eval to show the
+sophisticated retrieval techniques didn't fit this symmetric-similarity task,
+and shipped the simpler, better-measured system."**
 
 ## Resolution Prediction (Stage 3)
 

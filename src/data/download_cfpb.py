@@ -123,9 +123,7 @@ async def download_complaints(
     async with httpx.AsyncClient() as client:
         with output_path.open("w", encoding="utf-8") as out_file:
             for product in PRODUCTS:
-                logger.info(
-                    "Fetching product: %s (limit: %d)", product, per_product_limit
-                )
+                logger.info("Fetching product: %s (limit: %d)", product, per_product_limit)
                 frm = 0
                 product_downloaded = 0
 
@@ -174,15 +172,19 @@ async def download_complaints(
                                 "Reached overall max-records safety cap (%d).", max_records
                             )
                             _print_summary(
-                                total_downloaded, total_written,
-                                product_counter, response_counter, issue_counter,
+                                total_downloaded,
+                                total_written,
+                                product_counter,
+                                response_counter,
+                                issue_counter,
                             )
                             return
 
                         if product_downloaded >= per_product_limit:
                             logger.info(
                                 "Reached per-product limit (%d) for '%s', moving to next product",
-                                per_product_limit, product,
+                                per_product_limit,
+                                product,
                             )
                             per_product_done = True
                             break
@@ -196,14 +198,18 @@ async def download_complaints(
                     if frm >= CFPB_MAX_OFFSET:
                         logger.warning(
                             "Hit CFPB API pagination limit (frm=%d) for product '%s'. "
-                            "This is an API constraint, not a bug. Max ~10,000 records per product.",
-                            frm, product,
+                            "This is an API constraint, not a bug. Max ~10,000 per product.",
+                            frm,
+                            product,
                         )
                         break
 
     _print_summary(
-        total_downloaded, total_written,
-        product_counter, response_counter, issue_counter,
+        total_downloaded,
+        total_written,
+        product_counter,
+        response_counter,
+        issue_counter,
     )
 
 

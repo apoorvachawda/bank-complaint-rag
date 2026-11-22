@@ -12,12 +12,14 @@ COPY pyproject.toml ./
 COPY src ./src
 RUN pip install --no-cache-dir -e .
 
-# Pre-download models at build time so cold starts don't pull from HF Hub
-RUN python -c "from sentence_transformers import SentenceTransformer, CrossEncoder; \
-    SentenceTransformer('BAAI/bge-small-en-v1.5'); CrossEncoder('BAAI/bge-reranker-base')"
+# Pre-download the embedding model at build time so cold starts don't pull from
+# HF Hub. No cross-encoder: dense-only won the eval (docs/eval-results.md), which
+# keeps the image ~1.1GB smaller.
+RUN python -c "from sentence_transformers import SentenceTransformer; \
+    SentenceTransformer('BAAI/bge-small-en-v1.5')"
 
 ENV VECTOR_BACKEND=qdrant \
-    RETRIEVER_NAME=hybrid-rerank \
+    RETRIEVER_NAME=dense \
     COLLECTION_NAME=complaints_bge \
     PORT=7860
 

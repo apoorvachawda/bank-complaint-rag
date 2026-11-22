@@ -19,7 +19,8 @@ Approach
 Usage
 ─────
   python -m src.data.deduplicate_corpus
-  python -m src.data.deduplicate_corpus --threshold 0.90 --output data/processed/complaints_deduped.jsonl
+  python -m src.data.deduplicate_corpus --threshold 0.90 \
+      --output data/processed/complaints_deduped.jsonl
 """
 
 from __future__ import annotations
@@ -125,6 +126,7 @@ def deduplicate_group(
 
     # Build clusters from connected components
     from collections import defaultdict as _dd
+
     component_map: dict[int, list[int]] = _dd(list)
     for idx in range(n):
         component_map[uf.find(idx)].append(idx)
@@ -232,8 +234,10 @@ def _print_summary(
         print("  " + "─" * 66)
         for cluster_ids, size in top_clusters:
             # cluster_ids[0] is the keeper (longest), rest are removed
-            print(f"  {size:>6}  IDs: {', '.join(cluster_ids[:5])}" +
-                  (" ..." if len(cluster_ids) > 5 else ""))
+            print(
+                f"  {size:>6}  IDs: {', '.join(cluster_ids[:5])}"
+                + (" ..." if len(cluster_ids) > 5 else "")
+            )
 
     # Per-product breakdown
     print("\n  By product:")
@@ -245,9 +249,7 @@ def _print_summary(
         removed = product_stats[product]["removed"]
         remaining = orig - removed
         rate = removed / orig if orig else 0.0
-        print(
-            f"  {product:<54} {orig:>7,}  {removed:>7,}  {remaining:>9,}  {rate:>5.1%}"
-        )
+        print(f"  {product:<54} {orig:>7,}  {removed:>7,}  {remaining:>9,}  {rate:>5.1%}")
 
     print("=" * 70)
 
@@ -257,7 +259,8 @@ def _print_summary(
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Remove near-duplicate complaints from a JSONL corpus using TF-IDF cosine similarity."
+        description="Remove near-duplicate complaints from a JSONL corpus "
+        "using TF-IDF cosine similarity."
     )
     parser.add_argument(
         "--input",
@@ -275,7 +278,8 @@ def parse_args() -> argparse.Namespace:
         "--threshold",
         type=float,
         default=0.85,
-        help="Cosine similarity threshold above which two complaints are considered duplicates (default: 0.85).",
+        help="Cosine similarity threshold above which two complaints "
+        "are considered duplicates (default: 0.85).",
     )
     return parser.parse_args()
 
@@ -289,7 +293,9 @@ def main() -> None:
     args = parse_args()
     logger.info(
         "Starting deduplication — threshold=%.2f, input=%s, output=%s",
-        args.threshold, args.input, args.output,
+        args.threshold,
+        args.input,
+        args.output,
     )
     run(input_path=args.input, output_path=args.output, threshold=args.threshold)
 

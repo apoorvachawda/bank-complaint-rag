@@ -49,10 +49,10 @@ logger = logging.getLogger(__name__)
 
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 MIN_NARRATIVE_LEN = 200
-CANDIDATE_POOL_SIZE = 20       # top-N by cosine sim passed to LLM
-MIN_SIM_FOR_CANDIDATES = 0.4   # below this, too dissimilar to be useful
-FALLBACK_SIM_THRESHOLD = 0.6   # used when --skip-llm or LLM parse fails
-MAX_ISSUES_PER_QUERY = 3       # no more than 3 queries from the same issue
+CANDIDATE_POOL_SIZE = 20  # top-N by cosine sim passed to LLM
+MIN_SIM_FOR_CANDIDATES = 0.4  # below this, too dissimilar to be useful
+FALLBACK_SIM_THRESHOLD = 0.6  # used when --skip-llm or LLM parse fails
+MAX_ISSUES_PER_QUERY = 3  # no more than 3 queries from the same issue
 
 PRODUCTS = [
     "Credit card or prepaid card",
@@ -145,7 +145,9 @@ def sample_queries(
         selected.extend(product_selected)
         logger.info(
             "Sampled %d queries for product '%s' (pool size: %d)",
-            len(product_selected), product, len(pool),
+            len(product_selected),
+            product,
+            len(pool),
         )
 
     return selected
@@ -211,9 +213,9 @@ def find_candidates(
 
     # Build index of same-product complaints (excluding the query itself)
     same_product_indices = [
-        i for i, c in enumerate(all_complaints)
-        if (c.get("product") or "") == product
-        and str(c["complaint_id"]) != query_id
+        i
+        for i, c in enumerate(all_complaints)
+        if (c.get("product") or "") == product and str(c["complaint_id"]) != query_id
     ]
 
     if not same_product_indices:
@@ -358,8 +360,10 @@ def print_summary(entries: list[dict]) -> None:
     print(f"  With similar complaints     : {len(with_similar)}")
     print(f"  With no similar complaints  : {n - len(with_similar)}")
     if non_zero:
-        print(f"  Similar per query  min/mean/max : "
-              f"{min(non_zero)} / {sum(non_zero)/len(non_zero):.1f} / {max(non_zero)}")
+        print(
+            f"  Similar per query  min/mean/max : "
+            f"{min(non_zero)} / {sum(non_zero) / len(non_zero):.1f} / {max(non_zero)}"
+        )
 
     print("\n  By company_response (resolution ground truth):")
     for resp, count in response_dist.most_common():
@@ -398,15 +402,14 @@ def run(
     logger.info("Sampled %d queries", len(query_complaints))
 
     # ── Phase 2: Embeddings ──────────────────────────────────────────────────
-    all_embeddings, all_ids = load_or_build_embeddings(
-        all_complaints, cache_path, skip_embedding
-    )
+    all_embeddings, all_ids = load_or_build_embeddings(all_complaints, cache_path, skip_embedding)
     id_to_index = {cid: i for i, cid in enumerate(all_ids)}
 
     # ── Phases 3 + 4: LLM verify + build entries ────────────────────────────
     groq_client = None
     if not skip_llm:
         import groq as _groq
+
         groq_client = _groq.Groq()
 
     entries: list[dict] = []
@@ -421,9 +424,7 @@ def run(
     query_ids = {str(q["complaint_id"]) for q in query_complaints}
 
     for i, query in enumerate(query_complaints, 1):
-        candidates = find_candidates(
-            query, all_complaints, all_embeddings, all_ids, id_to_index
-        )
+        candidates = find_candidates(query, all_complaints, all_embeddings, all_ids, id_to_index)
         # Exclude other queries from being labeled as "similar" to each other
         # to avoid eval set contamination
         candidates = [c for c in candidates if c["complaint_id"] not in query_ids]
@@ -444,7 +445,8 @@ def run(
             # Fallback: LLM failed or returned nothing but we have high-confidence candidates
             if not similar_ids:
                 fallback = [
-                    c["complaint_id"] for c in candidates
+                    c["complaint_id"]
+                    for c in candidates
                     if c["similarity"] >= FALLBACK_SIM_THRESHOLD
                 ]
                 if fallback:
@@ -455,7 +457,8 @@ def run(
                     )
                     logger.warning(
                         "Query %s: LLM failed, fell back to %d high-similarity candidates",
-                        query["complaint_id"], len(fallback),
+                        query["complaint_id"],
+                        len(fallback),
                     )
 
             if i < len(query_complaints):
@@ -466,7 +469,8 @@ def run(
         if i % 10 == 0:
             logger.info(
                 "Progress: %d/%d queries processed, saving checkpoint...",
-                i, len(query_complaints),
+                i,
+                len(query_complaints),
             )
             save_eval_set(output_path, entries)
 

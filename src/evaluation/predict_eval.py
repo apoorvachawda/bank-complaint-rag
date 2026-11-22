@@ -46,7 +46,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--n", type=int, default=150)
     parser.add_argument("--seed", type=int, default=42)
-    parser.add_argument("--retriever", default="hybrid-rerank", choices=RETRIEVER_CHOICES)
+    parser.add_argument("--retriever", default="dense", choices=RETRIEVER_CHOICES)
     parser.add_argument("--collection", default=DEFAULT_COLLECTION)
     parser.add_argument("--bm25-path", default=DEFAULT_BM25_PATH)
     parser.add_argument(

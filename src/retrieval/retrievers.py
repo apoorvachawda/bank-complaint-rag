@@ -46,20 +46,27 @@ def hybrid_retriever(
     bm25_fn: RetrieveFn,
     pool: int = CANDIDATE_POOL,
     rrf_k: int = RRF_K,
+    dense_weight: float = 1.0,
 ) -> RetrieveFn:
-    """Reciprocal Rank Fusion of dense + BM25 rankings.
+    """Weighted Reciprocal Rank Fusion of dense + BM25 rankings.
 
     RRF fuses on ranks, not scores — cosine similarities and BM25 scores
     live on incomparable scales, and score normalization is brittle
-    (sensitive to outliers and per-query score ranges). See ADR-010.
+    (sensitive to outliers and per-query score ranges).
+
+    dense_weight scales the dense leg's contribution. Equal weighting (1.0)
+    assumes both legs are comparably strong; when one is much weaker (BM25
+    0.27 vs dense 0.46 recall@5 on eval v2), equal fusion drags the strong
+    leg down, so dense_weight > 1 is worth testing (see eval-results.md).
     """
+    weights = (dense_weight, 1.0)
 
     def retrieve(narrative: str, exclude_id: str, n: int) -> list[str]:
         fused: dict[str, float] = {}
         rankings = (dense_fn(narrative, exclude_id, pool), bm25_fn(narrative, exclude_id, pool))
-        for ranking in rankings:
+        for weight, ranking in zip(weights, rankings):
             for rank, id_ in enumerate(ranking):
-                fused[id_] = fused.get(id_, 0.0) + 1.0 / (rrf_k + rank + 1)
+                fused[id_] = fused.get(id_, 0.0) + weight / (rrf_k + rank + 1)
         ranked = sorted(fused, key=lambda id_: fused[id_], reverse=True)
         return ranked[:n]
 

@@ -22,7 +22,10 @@ from src.retrieval.factory import make_retriever
 load_dotenv()
 logger = logging.getLogger(__name__)
 
-RETRIEVER_NAME = os.environ.get("RETRIEVER_NAME", "hybrid-rerank")
+# dense-only won the eval: hybrid and reranking both reduced recall on this
+# symmetric-similarity task (see docs/eval-results.md). Dropping the reranker
+# also keeps ~1.1GB of cross-encoder out of the deployment image.
+RETRIEVER_NAME = os.environ.get("RETRIEVER_NAME", "dense")
 VECTOR_BACKEND = os.environ.get("VECTOR_BACKEND", "chroma")
 COLLECTION_NAME = os.environ.get("COLLECTION_NAME", "complaints_bge")
 BM25_PATH = os.environ.get("BM25_PATH", "data/processed/bm25_index.pkl")
