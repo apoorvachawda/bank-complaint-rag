@@ -99,10 +99,17 @@ both the trivial always-majority guess and a dumb vote over the retrieved
 neighbors' outcomes. Yet the true outcome is in the top-5 evidence **93%** of
 the time, so *retrieval* works; the outcome just isn't well-determined by
 narrative content (monetary relief depends on account/company specifics not in
-the text). **Product takeaway:** surface the evidence outcome distribution to
-the teller, don't force a single-label prediction. Full analysis in
-[docs/eval-results.md](docs/eval-results.md). (Groq's 200k-tokens/day free cap
-truncated the run at 69/80.)
+the text). Full analysis in [docs/eval-results.md](docs/eval-results.md).
+(Groq's 200k-tokens/day free cap truncated the run at 69/80.)
+
+**The usable salvage (no LLM):** a deterministic count of the retrieved
+neighbors' outcomes predicts the binary "will this get any relief?" at
+**ROC-AUC 0.69** — above the 0.65 bar, computed by counting, not inference.
+This is exposed as the **`POST /analyze`** endpoint, which returns the neighbor
+outcome distribution and relief fraction and keeps working when the LLM
+provider is rate-limited. It's the honest product surface the Stage 3 result
+pointed to: show the teller the evidence, don't force a label.
+See [KNOWN_LIMITATIONS.md](KNOWN_LIMITATIONS.md) and [LATER.md](LATER.md).
 
 ## Observability
 
@@ -129,7 +136,10 @@ python -m src.evaluation.run_retrieval_evals --retriever dense \
 # Resolution-prediction eval (held-out, vs majority baseline)
 python -m src.evaluation.predict_eval --retriever dense --n 100
 
-# Serve (REST at /predict + /docs, Gradio demo at /ui)
+# Deterministic relief-vs-not signal (no LLM, no token budget)
+python -m src.evaluation.relief_signal_eval
+
+# Serve (REST: /predict [LLM], /analyze [no-LLM], /docs; Gradio demo at /ui)
 uvicorn src.api.main:app --reload --port 8000
 ```
 

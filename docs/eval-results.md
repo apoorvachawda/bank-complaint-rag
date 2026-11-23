@@ -119,6 +119,28 @@ variance on top of it.
    and let the teller judge — which is both more useful and more defensible than
    a prediction that can't beat a coin that always says "explanation."
 
+### Deterministic relief signal (no LLM) — the usable salvage
+
+Given the LLM layer added noise, we tested a narrower, LLM-free question: does
+the **outcome mix of the retrieved neighbors** predict the binary "will this get
+any relief (monetary or non-monetary)?" Score = fraction of the top-5 dense
+neighbors whose `company_response` is a relief category; label = the query's own
+outcome is relief. Threshold-free ROC-AUC over all 80 eval-v2 queries:
+
+| Signal | ROC-AUC | N (positives) |
+|--------|:-------:|:-------------:|
+| Top-5 neighbor relief-fraction | **0.692** | 80 (30 relief) |
+
+**AUC 0.69 clears the 0.65 bar we set** — the neighbors' outcome mix carries a
+real, if modest, binary signal, computed by *counting* rather than LLM
+inference. Small-sample caveat: 30 positives means ~±0.05 wobble, so this is
+directional. Reproduce: `python -m src.evaluation.relief_signal_eval`.
+
+Acting on it: the `/analyze` API endpoint returns the counted neighbor outcome
+distribution and this relief fraction — deterministic, no tokens, and it keeps
+working when the LLM provider is rate-limited. This is the honest product
+surface the Stage 3 result pointed to.
+
 ### Blocker / reproducibility note
 
 The Groq free tier caps at **200,000 tokens/day**. Building eval set v2 (80

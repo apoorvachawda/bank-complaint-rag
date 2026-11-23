@@ -24,6 +24,21 @@ class PredictResponse(BaseModel):
     latency_ms: float
 
 
+class AnalyzeResponse(BaseModel):
+    """Deterministic (no-LLM) retrieval + outcome tally.
+
+    This is the honest product surface: rather than an LLM forcing a single
+    resolution label (which beat no baseline — see docs/eval-results.md), we
+    return the retrieved neighbors and count their known outcomes. The relief
+    fraction is a usable binary signal (ROC-AUC 0.69 on the eval set).
+    """
+
+    evidence: list[EvidenceSummary]
+    outcome_distribution: dict[str, int]
+    relief_fraction: float
+    latency_ms: float
+
+
 class HealthResponse(BaseModel):
     status: str
     retriever: str

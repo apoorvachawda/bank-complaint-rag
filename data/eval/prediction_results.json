@@ -1,0 +1,1286 @@
+{
+  "summary": {
+    "n_requested": 80,
+    "n_completed": 69,
+    "seed": 42,
+    "retriever": "dense",
+    "majority_class": "Closed with explanation",
+    "model": {
+      "accuracy": 0.6956521739130435,
+      "macro_f1": 0.20689655172413793
+    },
+    "majority_baseline": {
+      "accuracy": 0.855072463768116,
+      "macro_f1": 0.23046875
+    }
+  },
+  "records": [
+    {
+      "complaint_id": "6436033",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with monetary relief",
+      "confidence": 0.78,
+      "cited_evidence_ids": [
+        "4088707",
+        "7028040",
+        "7626498"
+      ],
+      "evidence_outcomes": [
+        "Closed with monetary relief",
+        "Closed with monetary relief",
+        "Closed with monetary relief",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "10663484",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.92,
+      "cited_evidence_ids": [
+        "12935724",
+        "5502741",
+        "4527706",
+        "6085110",
+        "16293973"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "9372749",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with non-monetary relief",
+      "confidence": 0.78,
+      "cited_evidence_ids": [
+        "6450042",
+        "4097852"
+      ],
+      "evidence_outcomes": [
+        "Closed with non-monetary relief",
+        "Closed with non-monetary relief",
+        "Closed with explanation",
+        "Closed with monetary relief",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "8017051",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.86,
+      "cited_evidence_ids": [
+        "3167536",
+        "8130249",
+        "17107380",
+        "14451376",
+        "2838874"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "2480970",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.78,
+      "cited_evidence_ids": [
+        "16986198",
+        "2999873",
+        "2795264"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "5887143",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.86,
+      "cited_evidence_ids": [
+        "2881855",
+        "3365680",
+        "4813949"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "2693998",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with non-monetary relief",
+      "confidence": 0.68,
+      "cited_evidence_ids": [
+        "6407897",
+        "5206528",
+        "2828271"
+      ],
+      "evidence_outcomes": [
+        "Closed with non-monetary relief",
+        "Closed with monetary relief",
+        "Closed with non-monetary relief",
+        "Closed with explanation",
+        "Closed with non-monetary relief"
+      ]
+    },
+    {
+      "complaint_id": "5281150",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.86,
+      "cited_evidence_ids": [
+        "12173456",
+        "5668458",
+        "5012517"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "3942710",
+      "actual": "Untimely response",
+      "predicted": "Closed with explanation",
+      "confidence": 0.92,
+      "cited_evidence_ids": [
+        "7636204",
+        "7685946",
+        "13990577"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "5477214",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.65,
+      "cited_evidence_ids": [
+        "5195893",
+        "13586927",
+        "9367486",
+        "6505628"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with monetary relief",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "11573737",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.96,
+      "cited_evidence_ids": [
+        "6034616",
+        "6351112",
+        "5620573",
+        "5175025",
+        "11578193"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "6653737",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with monetary relief",
+      "confidence": 0.73,
+      "cited_evidence_ids": [
+        "2199253"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with monetary relief",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "4322033",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.86,
+      "cited_evidence_ids": [
+        "4496109",
+        "4280518",
+        "2838234"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "11429110",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.95,
+      "cited_evidence_ids": [
+        "19116223",
+        "5231808",
+        "1789283",
+        "3317496",
+        "7090767"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "2388661",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.86,
+      "cited_evidence_ids": [
+        "2850608",
+        "3181173"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "2473830",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with non-monetary relief",
+      "confidence": 0.71,
+      "cited_evidence_ids": [
+        "4334132"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with non-monetary relief",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "3022008",
+      "actual": "Closed with monetary relief",
+      "predicted": "Closed with explanation",
+      "confidence": 0.86,
+      "cited_evidence_ids": [
+        "6414410",
+        "4663005"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "13759362",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.92,
+      "cited_evidence_ids": [
+        "12597356",
+        "5239513",
+        "3773867"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "2897604",
+      "actual": "Closed with non-monetary relief",
+      "predicted": "Closed with monetary relief",
+      "confidence": 0.65,
+      "cited_evidence_ids": [
+        "14071069",
+        "12567600",
+        "10745738"
+      ],
+      "evidence_outcomes": [
+        "Closed with non-monetary relief",
+        "Closed with explanation",
+        "Closed with monetary relief",
+        "Closed with monetary relief",
+        "Closed with monetary relief"
+      ]
+    },
+    {
+      "complaint_id": "6126329",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.86,
+      "cited_evidence_ids": [
+        "7264370",
+        "1872363",
+        "4505607"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "3070899",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.86,
+      "cited_evidence_ids": [
+        "3500790",
+        "3054591",
+        "3766086",
+        "13071776"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "3986537",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.92,
+      "cited_evidence_ids": [
+        "4498783",
+        "6467492",
+        "11826147",
+        "10222218",
+        "5186844"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "6456920",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with monetary relief",
+      "confidence": 0.62,
+      "cited_evidence_ids": [
+        "18431848",
+        "18162661"
+      ],
+      "evidence_outcomes": [
+        "Closed with monetary relief",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with monetary relief",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "1402200",
+      "actual": "Closed with non-monetary relief",
+      "predicted": "Closed with explanation",
+      "confidence": 0.71,
+      "cited_evidence_ids": [
+        "8430950",
+        "1796902",
+        "1982599",
+        "2174077"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with non-monetary relief",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "2788678",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.86,
+      "cited_evidence_ids": [
+        "2139592",
+        "3238908",
+        "8469390",
+        "2268155"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with non-monetary relief",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "15455923",
+      "actual": "Closed with non-monetary relief",
+      "predicted": "Closed with explanation",
+      "confidence": 0.62,
+      "cited_evidence_ids": [
+        "3985326",
+        "6505852",
+        "14711453"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with monetary relief",
+        "Closed with explanation",
+        "Closed with non-monetary relief"
+      ]
+    },
+    {
+      "complaint_id": "3250664",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.86,
+      "cited_evidence_ids": [
+        "3544672",
+        "2924244",
+        "1776585",
+        "2923098",
+        "3226912"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "4657149",
+      "actual": "Closed with non-monetary relief",
+      "predicted": "Closed with explanation",
+      "confidence": 0.93,
+      "cited_evidence_ids": [
+        "3921780",
+        "3962874",
+        "3907224",
+        "3915378",
+        "3867469"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "7371172",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.78,
+      "cited_evidence_ids": [
+        "3021745",
+        "7326128"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with monetary relief",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "3235266",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.66,
+      "cited_evidence_ids": [
+        "3332306",
+        "13505910"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with non-monetary relief",
+        "Closed with explanation",
+        "Closed with monetary relief",
+        "Closed with monetary relief"
+      ]
+    },
+    {
+      "complaint_id": "7267958",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.92,
+      "cited_evidence_ids": [
+        "16302668",
+        "5998981",
+        "13012244",
+        "15690067",
+        "14515294"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "5322094",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.78,
+      "cited_evidence_ids": [
+        "4601564",
+        "10239754",
+        "12140589",
+        "18139262"
+      ],
+      "evidence_outcomes": [
+        "Closed with non-monetary relief",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "16419320",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.85,
+      "cited_evidence_ids": [
+        "8009766",
+        "5045648",
+        "2760139"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "7831238",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with monetary relief",
+      "confidence": 0.78,
+      "cited_evidence_ids": [
+        "5684206",
+        "3755510"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with monetary relief",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with monetary relief"
+      ]
+    },
+    {
+      "complaint_id": "6569479",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.86,
+      "cited_evidence_ids": [
+        "3167597",
+        "6095664",
+        "5378088"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "3320982",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.86,
+      "cited_evidence_ids": [
+        "13585566",
+        "18306373",
+        "1938795"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with non-monetary relief",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "9419833",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.82,
+      "cited_evidence_ids": [
+        "15399842",
+        "17470981",
+        "8019650"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "7744889",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.78,
+      "cited_evidence_ids": [
+        "6153291",
+        "6375679",
+        "8894718"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with monetary relief",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "1960580",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.92,
+      "cited_evidence_ids": [
+        "2675354",
+        "1780640",
+        "2825806"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "11111707",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.86,
+      "cited_evidence_ids": [
+        "8135456",
+        "4288387",
+        "6175512"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "18380757",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.86,
+      "cited_evidence_ids": [
+        "5009296",
+        "12163013",
+        "5189978",
+        "4122260",
+        "2894857"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "14475811",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.95,
+      "cited_evidence_ids": [
+        "17329962",
+        "8798913",
+        "11329159",
+        "8706096",
+        "3576033"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "18213378",
+      "actual": "Closed with non-monetary relief",
+      "predicted": "Closed with explanation",
+      "confidence": 0.78,
+      "cited_evidence_ids": [
+        "14522884",
+        "7589337"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with monetary relief"
+      ]
+    },
+    {
+      "complaint_id": "4134197",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.86,
+      "cited_evidence_ids": [
+        "10023004",
+        "8600277",
+        "7830507"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "5677417",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.96,
+      "cited_evidence_ids": [
+        "4146571",
+        "17779238",
+        "3642165",
+        "3987075",
+        "10256494"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "12422740",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.96,
+      "cited_evidence_ids": [
+        "15724417",
+        "17875060",
+        "17029648",
+        "17816032",
+        "17917178"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "7202134",
+      "actual": "Closed with monetary relief",
+      "predicted": "Closed with explanation",
+      "confidence": 0.62,
+      "cited_evidence_ids": [
+        "7183393",
+        "3894758"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with monetary relief",
+        "Closed with explanation",
+        "Closed with monetary relief",
+        "Closed with monetary relief"
+      ]
+    },
+    {
+      "complaint_id": "16296793",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.96,
+      "cited_evidence_ids": [
+        "13459259",
+        "11637387",
+        "11800904",
+        "11639185",
+        "11659225"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "7017506",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.7,
+      "cited_evidence_ids": [
+        "9255914",
+        "13192676",
+        "5625224",
+        "3054612"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with monetary relief",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "4214093",
+      "actual": "Closed with monetary relief",
+      "predicted": "Closed with explanation",
+      "confidence": 0.78,
+      "cited_evidence_ids": [
+        "4303638",
+        "4129310",
+        "7414077"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with monetary relief",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "3191656",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.72,
+      "cited_evidence_ids": [
+        "8181801",
+        "3491315"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with monetary relief",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "2846595",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with non-monetary relief",
+      "confidence": 0.65,
+      "cited_evidence_ids": [
+        "15169866",
+        "10170810",
+        "2760139"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with non-monetary relief",
+        "Closed with explanation",
+        "Closed with monetary relief"
+      ]
+    },
+    {
+      "complaint_id": "3023698",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.75,
+      "cited_evidence_ids": [
+        "7052687",
+        "4942802",
+        "2501080"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with monetary relief",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "4160115",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.78,
+      "cited_evidence_ids": [
+        "6937815",
+        "4553930",
+        "2556759"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with monetary relief",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "3826814",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.93,
+      "cited_evidence_ids": [
+        "3329198",
+        "9271934",
+        "5015381",
+        "2775377",
+        "3487101"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "7354086",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with monetary relief",
+      "confidence": 0.73,
+      "cited_evidence_ids": [
+        "6684544",
+        "4003119"
+      ],
+      "evidence_outcomes": [
+        "Closed with monetary relief",
+        "Closed with monetary relief",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "4334132",
+      "actual": "Closed with non-monetary relief",
+      "predicted": "Closed with explanation",
+      "confidence": 0.86,
+      "cited_evidence_ids": [
+        "4708124",
+        "2542032"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "7401156",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.92,
+      "cited_evidence_ids": [
+        "9088141",
+        "3338818",
+        "7090767",
+        "4171437",
+        "3165171"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "11659368",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.96,
+      "cited_evidence_ids": [
+        "11952726",
+        "11674241",
+        "11632545",
+        "11675737",
+        "11653073"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "19034494",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.85,
+      "cited_evidence_ids": [
+        "18993121",
+        "18100838",
+        "19451971",
+        "15805202",
+        "13724792"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "6830728",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with monetary relief",
+      "confidence": 0.85,
+      "cited_evidence_ids": [
+        "2734473",
+        "4041911"
+      ],
+      "evidence_outcomes": [
+        "Closed with monetary relief",
+        "Closed with monetary relief",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with monetary relief"
+      ]
+    },
+    {
+      "complaint_id": "1655794",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.73,
+      "cited_evidence_ids": [
+        "3139818",
+        "2755400",
+        "5095828"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with non-monetary relief"
+      ]
+    },
+    {
+      "complaint_id": "13228848",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.92,
+      "cited_evidence_ids": [
+        "5839469",
+        "6504196",
+        "6542339",
+        "7210298",
+        "7383709"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "2941780",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.86,
+      "cited_evidence_ids": [
+        "6014969",
+        "5448227",
+        "6465294"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "5906590",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.86,
+      "cited_evidence_ids": [
+        "18963630",
+        "7613518"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "10280566",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with monetary relief",
+      "confidence": 0.71,
+      "cited_evidence_ids": [
+        "6854876",
+        "4225753"
+      ],
+      "evidence_outcomes": [
+        "Closed with monetary relief",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with monetary relief"
+      ]
+    },
+    {
+      "complaint_id": "19119175",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.92,
+      "cited_evidence_ids": [
+        "3273730",
+        "6390803",
+        "9119337"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "4854774",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.65,
+      "cited_evidence_ids": [
+        "6377118",
+        "6014705",
+        "6551951"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with monetary relief",
+        "Closed with monetary relief",
+        "Closed with explanation"
+      ]
+    },
+    {
+      "complaint_id": "7127559",
+      "actual": "Closed with explanation",
+      "predicted": "Closed with explanation",
+      "confidence": 0.95,
+      "cited_evidence_ids": [
+        "8346828",
+        "7540322",
+        "7468151",
+        "11095652",
+        "7482768"
+      ],
+      "evidence_outcomes": [
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation",
+        "Closed with explanation"
+      ]
+    }
+  ]
+}

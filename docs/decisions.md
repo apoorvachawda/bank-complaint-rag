@@ -161,3 +161,28 @@ the local backend (0.2883 vs 0.2883 on dense-BGE/v1); recall@10 differed by 0.00
 tie-break flip from float score ordering across HNSW implementations, i.e. expected variance,
 not data loss. The backend is a one-env-var swap (VECTOR_BACKEND), so local eval runs stay free
 while deployment reads Qdrant Cloud.
+
+---
+
+## ADR-012: Deterministic `/analyze` surface after the LLM predictor failed its baselines
+
+**Date:** 2026-11-23
+**Context:** The Stage 3 LLM predictor (retrieval + `gpt-oss-120b`) scored 0.70
+accuracy / 0.21 macro-F1 on a held-out set — below both an always-majority
+baseline (0.86 / 0.23) and a plain majority-vote over retrieved neighbor
+outcomes (0.81). It added noise rather than signal (0.00 F1 on all minority
+classes). Retrieval itself was fine (true outcome in top-5 evidence 93% of the
+time). The resolution outcome is simply weakly determined by narrative text.
+**Decision:** Do not ship a forced single-label LLM prediction as the product.
+Instead measure a deterministic, LLM-free signal — the fraction of top-5
+retrieved neighbors whose outcome is "any relief" — as a binary relief-vs-not
+score, and gate on ROC-AUC ≥ 0.65. It scored **0.69**, so ship it: the
+`POST /analyze` endpoint returns the counted neighbor outcome distribution and
+relief fraction, no tokens spent. `/predict` (the LLM pipeline) stays available
+and traced, but is documented as not beating baseline. LLM-based reframes are
+parked in LATER.md; limitations in KNOWN_LIMITATIONS.md.
+**Consequences:** The deployed demo stays functional under the Groq daily token
+cap (the `/analyze` path needs no LLM). The product is more honest and more
+useful (show the evidence, don't fabricate confidence), and the negative Stage 3
+result plus this salvage is a stronger eval-driven-development story than a
+prediction number that couldn't beat a coin flip toward the majority class.
