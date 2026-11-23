@@ -78,16 +78,54 @@ that caught its own circularity (v1→v2), then used the fair eval to show the
 sophisticated retrieval techniques didn't fit this symmetric-similarity task,
 and shipped the simpler, better-measured system."**
 
-## Resolution Prediction (Stage 3)
-
-| Date | Config | Accuracy | Macro-F1 | Baseline Acc | Baseline Macro-F1 | N |
-|------|--------|----------|----------|--------------|--------------------|---|
-| _pending_ | | | | | | |
+## Resolution Prediction (Stage 3) — a negative result worth reading
 
 Held-out design: the complaint being predicted is excluded from its own
-retrieval results; majority-class baseline computed on the corpus excluding
-the test split. Macro-F1 matters because resolutions are heavily imbalanced
-("Closed with explanation" dominates).
+retrieval results; majority-class baseline computed on the train rows only.
+Test sample seed=42, n=69 completed (80 requested; 11 dropped when the Groq
+free-tier **200k tokens/day** cap was hit mid-run — see note below).
+
+| Approach | Accuracy | Macro-F1 | Notes |
+|----------|:--------:|:--------:|-------|
+| Majority class (always "Closed with explanation") | **0.855** | 0.230 | trivial baseline |
+| Majority vote over retrieved evidence outcomes | 0.812 | — | no LLM; just count the 5 neighbors' outcomes |
+| **Dense retrieval + Groq LLM (the system)** | **0.696** | 0.207 | **loses to both baselines** |
+
+**The LLM prediction layer makes things worse, not better.** It underperforms
+both the trivial always-majority baseline (0.86) and a dumb majority-vote over
+the retrieved neighbors' outcomes (0.81). Per-class, it gets "Closed with
+explanation" right (F1 0.83) but scores **0.00 on all three minority classes**
+(monetary relief n=3, non-monetary n=6, untimely n=1) — it deviates from the
+evidence consensus toward minority labels and is wrong when it does.
+
+**But retrieval is not the problem.** The true outcome appears somewhere in the
+top-5 retrieved evidence **93%** of the time, and the evidence-majority-vote
+alone scores 0.81. The signal is in the retrieved set; the LLM is adding
+variance on top of it.
+
+### What this means (the honest interview story)
+
+1. **The task is base-rate-dominated.** 85% of complaints close "with
+   explanation," so always guessing it is a strong 0.86 baseline. Accuracy is
+   nearly useless here; macro-F1 is the honest metric and everything is weak on
+   it because the minority classes have tiny support.
+2. **Resolution outcome is weakly determined by narrative content.** Whether a
+   complaint gets *monetary relief* depends on account specifics and company
+   policy that aren't in the public narrative — so similar-looking complaints
+   have mixed outcomes, and no amount of retrieval quality fixes that.
+3. **The product implication:** a forced single-label prediction is the wrong
+   output. The right output is to **surface the evidence outcome distribution**
+   ("4 of 5 similar complaints closed with explanation; 1 with monetary relief")
+   and let the teller judge — which is both more useful and more defensible than
+   a prediction that can't beat a coin that always says "explanation."
+
+### Blocker / reproducibility note
+
+The Groq free tier caps at **200,000 tokens/day**. Building eval set v2 (80
+pooled-candidate judge calls) plus this prediction run (69 × 2 stages)
+exhausted the daily budget, which is why n=69 not 80. Re-running the full n=80,
+or testing a reframed Stage 3 (binary relief-vs-not, or evidence-distribution
+output), needs either the next-day reset or a Groq paid tier.
 
 ## Eval Set Details
 - **Size:** 80 labeled queries (same queries in v1 and v2)

@@ -85,16 +85,24 @@ MiniLM + BGE + BM25, same LLM judge. All comparisons below use v2. (ADR-010.)
   this objective. Diagnosed on a 12-query probe (degrades even at 158 tokens, so
   it's not just truncation).
 
-### Resolution prediction (Stage 3, held-out)
+### Resolution prediction (Stage 3, held-out) — another honest negative
 
-| Config | Accuracy | Macro-F1 | Majority baseline (Acc / F1) | N |
-|--------|:--------:|:--------:|:----------------------------:|:-:|
-| Dense retrieval + Groq gpt-oss-120b | _pending_ | _pending_ | _pending_ | 100 |
+| Approach | Accuracy | Macro-F1 |
+|----------|:--------:|:--------:|
+| Majority class ("Closed with explanation") | **0.855** | 0.230 |
+| Majority vote over retrieved evidence (no LLM) | 0.812 | — |
+| Dense retrieval + Groq LLM (the system) | 0.696 | 0.207 |
 
-Held-out by construction: the complaint being predicted is excluded from its own
-retrieval. Macro-F1 is reported because resolutions are heavily imbalanced
-("Closed with explanation" dominates) — accuracy alone would reward guessing the
-majority class.
+Held-out by construction (n=69; the complaint predicted is excluded from its own
+retrieval). **The LLM prediction layer beats neither baseline** — it loses to
+both the trivial always-majority guess and a dumb vote over the retrieved
+neighbors' outcomes. Yet the true outcome is in the top-5 evidence **93%** of
+the time, so *retrieval* works; the outcome just isn't well-determined by
+narrative content (monetary relief depends on account/company specifics not in
+the text). **Product takeaway:** surface the evidence outcome distribution to
+the teller, don't force a single-label prediction. Full analysis in
+[docs/eval-results.md](docs/eval-results.md). (Groq's 200k-tokens/day free cap
+truncated the run at 69/80.)
 
 ## Observability
 
