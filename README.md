@@ -1,8 +1,9 @@
 # Bank Complaint Resolution Intelligence
 
-A production-grade RAG system that predicts the likely **resolution outcome** of a
-bank complaint by retrieving similar past complaints from a 92k-record CFPB corpus
-and reasoning over their known outcomes. Built eval-first: every retrieval decision
+A production-grade RAG system that, given a new bank complaint, retrieves similar
+past complaints from a 92k-record CFPB corpus and **surfaces how they were
+resolved** — the outcome distribution and the share that got relief — so a teller
+can judge a new case against precedent. Built eval-first: every retrieval decision
 is backed by a number on a labeled test set, including the decisions that said "no."
 
 > **The honest headline:** the most interesting result in this project is a
@@ -16,41 +17,62 @@ is backed by a number on a labeled test set, including the decisions that said "
 ## Problem
 
 A bank teller handling a new complaint has no cheap way to know how similar cases
-were resolved. This system gives them that context before they work the case:
+were resolved. This system gives them that context before they work the case —
+the `POST /analyze` endpoint returns the retrieved neighbors and tallies their
+known outcomes:
 
-> *"3 of 5 similar overdraft-fee complaints were resolved with monetary relief;
-> strong precedent for fee reversal."*
-> → `predicted_resolution: "Closed with monetary relief", confidence: 0.73`
+> *5 similar overdraft-fee complaints: 4 "Closed with explanation", 1 "Closed
+> with monetary relief" → relief likelihood 20%.*
+> ```json
+> { "outcome_distribution": {"Closed with explanation": 4,
+>                            "Closed with monetary relief": 1},
+>   "relief_fraction": 0.2,
+>   "evidence": [ ... 5 cited past complaints ... ] }
+> ```
 
-Ground truth is free: CFPB publishes the actual `company_response` for every
-complaint, so resolution-prediction accuracy is measurable on the entire corpus
-with no manual labeling.
+It shows the evidence rather than forcing a single predicted label — because the
+eval found an LLM-predicted label beats no baseline, while *counting* the
+neighbors' outcomes is a usable binary relief signal (ROC-AUC 0.69). See
+[Eval Results](#eval-results). Ground truth is free: CFPB publishes the actual
+`company_response` for every complaint, so outcomes are measurable on the entire
+corpus with no manual labeling.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-    Q[New complaint] --> E
-    subgraph Pipeline["3-stage LangGraph pipeline"]
-        E[Stage 1<br/>Enrich<br/>Groq LLM] --> R[Stage 2<br/>Retrieve<br/>dense / Qdrant]
-        R --> P[Stage 3<br/>Predict<br/>Groq LLM]
+    Q[New complaint] --> EMB[Embed query<br/>BGE-small]
+    EMB -->|query vector| VDB[(Qdrant Cloud<br/>92k BGE vectors)]
+    VDB -->|top-5 neighbors| AN
+
+    subgraph Public["POST /analyze — default, no LLM"]
+        AN[Tally neighbor outcomes] --> O[outcome_distribution<br/>+ relief_fraction<br/>+ cited evidence]
     end
-    R -.query vector.-> VDB[(Qdrant Cloud<br/>92k BGE vectors)]
-    VDB -.top-5 evidence.-> P
-    P --> O[predicted_resolution<br/>+ confidence<br/>+ cited evidence IDs]
-    Pipeline -.traces.-> LF[Langfuse<br/>latency + cost]
+
+    VDB -.top-5 evidence.-> PP
+    subgraph Gated["POST /predict — ENABLE_LLM_PREDICT only"]
+        E[Stage 1 Enrich<br/>Groq LLM] -.-> PP[Stage 3 Predict<br/>Groq LLM]
+    end
+    Q -.-> E
+    PP -.traces.-> LF[Langfuse<br/>latency + cost]
 ```
 
-| Stage | What it does | Output |
-|-------|-------------|--------|
-| 1 · Enrich | LLM extracts product, issue summary, severity signals from raw text | `EnrichedComplaint` (Pydantic) |
-| 2 · Retrieve | Dense vector search over 92k complaints, leave-one-out | top-5 `EvidenceComplaint` with known outcomes |
-| 3 · Predict | LLM reasons over the evidence's outcome distribution | `ResolutionPrediction` + cited evidence IDs |
+The **default surface is `/analyze`**: embed the complaint, pull its top-5
+neighbors from the vector index, and **count their known outcomes** — no LLM.
+The full 3-stage LangGraph pipeline (enrich → retrieve → predict) still exists
+behind `/predict` but is **off by default** (`ENABLE_LLM_PREDICT`), since its
+prediction beat no baseline and it spends Groq's capped daily tokens.
 
-Stages communicate via typed Pydantic state, not string concatenation. The
-retrieval strategy is **injected**, so swapping retrievers (or vector backends)
-is a one-line config change — which is exactly what made the eval-driven
-comparison below possible.
+| Component | What it does | Output |
+|-------|-------------|--------|
+| `/analyze` (default) | Dense retrieval + count the neighbors' outcomes, leave-one-out, no LLM | `outcome_distribution` + `relief_fraction` + cited evidence |
+| Stage 1 · Enrich (gated) | LLM extracts product, issue summary, severity signals | `EnrichedComplaint` (Pydantic) |
+| Stage 3 · Predict (gated) | LLM reasons over the evidence's outcome distribution | `ResolutionPrediction` + cited evidence IDs |
+
+Pipeline stages communicate via typed Pydantic state, not string concatenation.
+The retrieval strategy is **injected**, so swapping retrievers (or vector
+backends) is a one-line config change — which is exactly what made the
+eval-driven comparison below possible.
 
 ## Eval Results
 
@@ -69,11 +91,15 @@ MiniLM + BGE + BM25, same LLM judge. All comparisons below use v2. (ADR-010.)
 
 | Retriever | Recall@5 | Recall@10 | MRR@10 | Verdict |
 |-----------|:--------:|:---------:|:------:|---------|
-| **Dense MiniLM** | **0.457** | 0.493 | 0.706 | shipped (ties BGE, smaller) |
-| **Dense BGE-small** | **0.456** | 0.463 | 0.630 | deployed (already in Qdrant) |
+| **Dense BGE-small** | **0.456** | 0.463 | 0.630 | **deployed** (indexed in Qdrant Cloud) |
+| Dense MiniLM | 0.457 | 0.493 | 0.706 | ties BGE — kept only as the baseline |
 | BM25-only | 0.272 | 0.254 | 0.442 | lexical floor |
 | Hybrid RRF (dense+BM25) | 0.365 | 0.372 | 0.582 | ❌ worse than dense alone |
 | Hybrid + cross-encoder rerank | 0.282 | 0.306 | 0.497 | ❌ worst |
+
+MiniLM and BGE-small are a statistical tie (Δ 0.001, noise at n=80). **BGE-small
+is the deployed model** because the production index in Qdrant Cloud is built
+from BGE vectors (ADR-011); MiniLM is retained only as the eval baseline.
 
 **Why the fancy techniques lost** (full write-up in [docs/eval-results.md](docs/eval-results.md)):
 - **BGE ≈ MiniLM** — a 384-dim upgrade is a wash on long, domain-specific narratives.
@@ -139,7 +165,8 @@ python -m src.evaluation.predict_eval --retriever dense --n 100
 # Deterministic relief-vs-not signal (no LLM, no token budget)
 python -m src.evaluation.relief_signal_eval
 
-# Serve (REST: /predict [LLM], /analyze [no-LLM], /docs; Gradio demo at /ui)
+# Serve (REST: /analyze [no-LLM, default], /predict [LLM, set ENABLE_LLM_PREDICT=true],
+#        /docs; Gradio demo at /ui)
 uvicorn src.api.main:app --reload --port 8000
 ```
 
@@ -154,7 +181,7 @@ uvicorn src.api.main:app --reload --port 8000
 | LLM | Groq `openai/gpt-oss-120b` | Fast hosted inference; OpenAI-compatible API; the available Groq model |
 | Observability | Langfuse | Per-stage latency + token cost |
 | API / Demo | FastAPI + Gradio | Auto-docs + Pydantic validation; Gradio UI for the live demo |
-| Deployment | Hugging Face Spaces | Free tier holds the embedding model in memory (ADR pending) |
+| Deployment | Hugging Face Spaces + Qdrant Cloud | Free CPU tier holds the embedding model in memory; index lives in Qdrant (ADR-013). Note: a free Space **sleeps after ~48h idle**, so the first request after sleep is slow (cold model load). |
 
 ## Data
 
@@ -169,7 +196,7 @@ above regenerate them.
 
 ## Documentation
 
-- [docs/decisions.md](docs/decisions.md) — 11 ADRs, each with the alternatives and the number that justified the choice
+- [docs/decisions.md](docs/decisions.md) — 13 ADRs, each with the alternatives and the number that justified the choice
 - [docs/eval-results.md](docs/eval-results.md) — full experiment log, v1-vs-v2 bias story, reranker root-cause
 - [docs/resume-bullets.md](docs/resume-bullets.md) — the measured outcomes
 
