@@ -44,3 +44,4 @@ class HealthResponse(BaseModel):
     retriever: str
     vector_backend: str
     corpus_size: int
+    llm_predict_enabled: bool

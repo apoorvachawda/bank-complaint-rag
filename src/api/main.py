@@ -37,6 +37,12 @@ VECTOR_BACKEND = os.environ.get("VECTOR_BACKEND", "chroma")
 COLLECTION_NAME = os.environ.get("COLLECTION_NAME", "complaints_bge")
 BM25_PATH = os.environ.get("BM25_PATH", "data/processed/bm25_index.pkl")
 
+# /predict is off by default: it spends Groq tokens (capped at 200k/day on the
+# free tier) and, per the eval, its prediction beats no baseline anyway. The
+# public demo exposes the deterministic /analyze instead. Flip to "true" only
+# behind your own key/quota.
+ENABLE_LLM_PREDICT = os.environ.get("ENABLE_LLM_PREDICT", "false").lower() == "true"
+
 _state: dict = {}
 
 
@@ -66,6 +72,7 @@ def health() -> HealthResponse:
         retriever=RETRIEVER_NAME,
         vector_backend=VECTOR_BACKEND,
         corpus_size=_state["stack"].store.count(),
+        llm_predict_enabled=ENABLE_LLM_PREDICT,
     )
 
 
@@ -76,6 +83,12 @@ def _run_pipeline(complaint_text: str) -> dict:
 
 @app.post("/predict", response_model=PredictResponse)
 def predict(request: PredictRequest) -> PredictResponse:
+    if not ENABLE_LLM_PREDICT:
+        raise HTTPException(
+            status_code=503,
+            detail="LLM prediction is disabled. Use POST /analyze for the deterministic "
+            "evidence distribution (no LLM). See KNOWN_LIMITATIONS.md.",
+        )
     start = time.perf_counter()
     try:
         final = _run_pipeline(request.complaint_text)

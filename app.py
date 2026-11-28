@@ -1,8 +1,13 @@
 """Hugging Face Spaces entrypoint: Gradio demo UI + the FastAPI REST API.
 
 One process serves both: gr.mount_gradio_app puts the demo at /ui while
-the FastAPI routes (/predict, /health, /docs) stay at the root. Runs
+the FastAPI routes (/analyze, /health, /docs) stay at the root. Runs
 CPU-only — models are small enough that no GPU quota is consumed.
+
+The demo calls /analyze (deterministic retrieval + outcome tally, no LLM),
+not /predict: /predict is gated off by default (ENABLE_LLM_PREDICT) because
+it spends Groq's capped daily tokens and beats no baseline (see
+docs/eval-results.md). The demo therefore stays up regardless of LLM quota.
 
 The BM25 index is too large for the Space repo and the disk is not
 persistent, so it is pulled from a HF dataset repo at startup when
@@ -33,8 +38,8 @@ ensure_bm25_index()
 import gradio as gr  # noqa: E402
 import uvicorn  # noqa: E402
 
+from src.api.main import analyze as api_analyze  # noqa: E402
 from src.api.main import app as fastapi_app  # noqa: E402
-from src.api.main import predict as api_predict  # noqa: E402
 from src.api.schemas import PredictRequest  # noqa: E402
 
 EXAMPLE = (
@@ -45,33 +50,40 @@ EXAMPLE = (
 )
 
 
-def predict_ui(complaint_text: str):
-    response = api_predict(PredictRequest(complaint_text=complaint_text))
-    p = response.prediction
+def analyze_ui(complaint_text: str):
+    response = api_analyze(PredictRequest(complaint_text=complaint_text))
     evidence_rows = [
         [e.complaint_id, e.company_response, e.product, e.narrative_preview]
         for e in response.evidence
     ]
-    headline = f"**{p.predicted_resolution}** (confidence {p.confidence:.0%})\n\n{p.reasoning}"
+    dist = ", ".join(f"{n}× {outcome}" for outcome, n in response.outcome_distribution.items())
+    headline = (
+        f"**Relief likelihood: {response.relief_fraction:.0%}** "
+        f"({response.relief_fraction * len(response.evidence):.0f} of "
+        f"{len(response.evidence)} similar complaints got monetary or non-monetary relief)\n\n"
+        f"Outcome distribution of similar past complaints: {dist}"
+    )
     return headline, evidence_rows, f"{response.latency_ms:.0f} ms"
 
 
 with gr.Blocks(title="Bank Complaint Resolution Intelligence") as demo:
     gr.Markdown(
         "# Bank Complaint Resolution Intelligence\n"
-        "Predicts the likely resolution of a bank complaint from similar past cases "
-        "(92k CFPB complaints · hybrid retrieval + reranking · Groq LLM). "
-        "REST API: `POST /predict` — see `/docs`."
+        "Finds similar past complaints in a 92k-record CFPB corpus (dense retrieval) and "
+        "shows **how they were resolved** — the outcome distribution and the share that got "
+        "relief — so you can judge a new case against precedent. No forced prediction: the "
+        "eval showed an LLM label beats no baseline, so this surfaces the evidence instead "
+        "(see the repo's eval write-up). REST API: `POST /analyze` — see `/docs`."
     )
     inp = gr.Textbox(label="Complaint text", lines=8, value=EXAMPLE)
-    btn = gr.Button("Predict resolution", variant="primary")
-    out_pred = gr.Markdown(label="Prediction")
+    btn = gr.Button("Analyze precedent", variant="primary")
+    out_summary = gr.Markdown(label="Resolution evidence")
     out_evidence = gr.Dataframe(
         headers=["complaint_id", "outcome", "product", "narrative preview"],
         label="Similar past complaints (evidence)",
     )
     out_latency = gr.Textbox(label="Latency")
-    btn.click(predict_ui, inputs=inp, outputs=[out_pred, out_evidence, out_latency])
+    btn.click(analyze_ui, inputs=inp, outputs=[out_summary, out_evidence, out_latency])
 
 app = gr.mount_gradio_app(fastapi_app, demo, path="/ui")
 
