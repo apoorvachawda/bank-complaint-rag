@@ -186,3 +186,38 @@ cap (the `/analyze` path needs no LLM). The product is more honest and more
 useful (show the evidence, don't fabricate confidence), and the negative Stage 3
 result plus this salvage is a stronger eval-driven-development story than a
 prediction number that couldn't beat a coin flip toward the majority class.
+
+---
+
+## ADR-013: Deploy on Hugging Face Spaces (Gradio) + Qdrant Cloud, `/predict` disabled publicly
+
+**Date:** 2026-11-28
+**Context:** The demo needs a free, public, always-reachable home that can hold
+the BGE embedding model (~130MB) plus the FastAPI app in memory and talk to the
+92k-vector index. Two cost risks to contain: the vector index is 1.8GB locally
+(cannot ship in the image), and the LLM path spends Groq's 200k-tokens/day free
+cap — a public button hitting `/predict` would exhaust it in minutes.
+**Alternatives considered:**
+- *HF Spaces (chosen).* Free CPU-Basic tier (2 vCPU, 16GB RAM) fits the model in
+  memory and runs CPU-only, consuming no GPU quota. Native Gradio SDK. Secrets
+  are first-class ("Settings → Secrets"). Downside: free Spaces sleep after ~48h
+  idle, so the first request after sleep is slow (cold load of the model).
+- *Google Cloud Run.* The committed Dockerfile already targets it, but the free
+  tier needs a billing card on file and scales to zero with cold starts too;
+  more setup for no demo benefit. Kept as the portable fallback.
+- *Fly.io / Render free tiers.* Comparable, but smaller free RAM headroom for the
+  model; not clearly better than Spaces.
+- *Bundling the index in the image.* Rejected — 1.8GB, and Space disk is
+  non-persistent, so a managed vector DB is required regardless.
+**Decision:** Deploy the Gradio app on HF Spaces (CPU Basic) reading the index
+from **Qdrant Cloud** (ADR-011), not a local index. API keys (Groq, Qdrant,
+Langfuse) are set as **Space secrets**, never committed — `deploy/push_to_space.py`
+uploads code only and sets non-secret runtime variables (`VECTOR_BACKEND=qdrant`,
+`RETRIEVER_NAME=dense`). **`/predict` is disabled in public deploys**
+(`ENABLE_LLM_PREDICT` unset → false, ADR-012/gate) so the public surface is the
+deterministic, token-free `/analyze`; this refines ADR-012's "stays available"
+to "available, but off by default in public to protect the Groq cap."
+**Consequences:** A free, shareable live URL whose demo path spends no LLM
+tokens and survives the daily cap. Cold-start latency after idle sleep is the
+accepted tradeoff for $0 hosting. `/predict` can be enabled behind a private
+key/quota by setting `ENABLE_LLM_PREDICT=true` as a Space secret.
