@@ -8,9 +8,9 @@ the committed eval runs (docs/eval-results.md)._
 ## Ready to use
 
 - Built a production-grade RAG system (LangGraph, FastAPI, Qdrant, Groq) that
-  predicts bank-complaint resolution outcomes from 92k CFPB complaints, with an
-  eval harness measuring recall@k, MRR, and resolution accuracy/macro-F1 on a
-  labeled test set.
+  surfaces resolution evidence for bank complaints from a 92k-record CFPB
+  corpus, with an eval harness measuring recall@k, MRR, and resolution
+  accuracy/macro-F1 on a labeled test set.
 
 - **Caught and fixed a circular evaluation**: the first eval set mined its
   "similar complaint" labels from a single retriever's neighbors, inflating that
@@ -34,6 +34,11 @@ the committed eval runs (docs/eval-results.md)._
   the finding is that CFPB resolution isn't well-determined by narrative text, so
   the right product surfaces the evidence distribution rather than forcing a label.
 
+- Shipped an LLM-free relief-vs-not signal — the fraction of retrieved neighbors
+  whose outcome was any relief — scoring **ROC-AUC 0.69** on the labeled set,
+  exposed as the `/analyze` API endpoint at **zero token cost** and resilient to
+  LLM rate limits (the deployed demo stays up regardless of the provider quota).
+
 - Instrumented the full pipeline with Langfuse: ~2.7–3.2s end-to-end latency and
   ~$0.0003/query (enrich + predict), traced per stage with token-level cost.
 
@@ -49,6 +54,7 @@ the committed eval runs (docs/eval-results.md)._
 
 ## One-liner (for the top of a resume)
 
-> Built an eval-driven RAG system (LangGraph · hybrid retrieval · Qdrant · Groq ·
-> Langfuse) on 92k CFPB complaints; the eval caught its own bias and disproved
-> two standard retrieval upgrades, shipping a simpler system justified by numbers.
+> Built an eval-driven RAG system (LangGraph · dense retrieval · Qdrant · Groq ·
+> Langfuse) on 92k CFPB complaints; evaluated hybrid retrieval and cross-encoder
+> reranking, found they didn't beat dense-only, and shipped the simpler system —
+> every decision justified by numbers on a labeled set I caught and fixed for bias.
