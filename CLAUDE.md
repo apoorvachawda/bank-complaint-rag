@@ -3,29 +3,36 @@
 ## What is this project?
 A production-grade RAG system for bank complaint resolution intelligence.
 Built as a portfolio project to demonstrate AI engineering skills (eval-driven development,
-hybrid retrieval, observability, deployment).
+retrieval, observability, deployment).
 
 Given a new bank complaint, the system retrieves similar past complaints from a 92k-record
-CFPB corpus and predicts the likely resolution outcome — giving a bank teller actionable
-intelligence before working the case.
+CFPB corpus and **surfaces how they were resolved** (outcome distribution + relief fraction)
+— giving a bank teller actionable precedent before working the case.
+
+> **Reality check (eval-driven):** the headline design evolved based on measured results.
+> Hybrid retrieval and cross-encoder reranking were implemented and **rejected** (both reduced
+> recall; dense-only won). The LLM resolution *prediction* (Stage 3) **beat no baseline**, so
+> the shipped product surfaces the retrieved evidence distribution instead of forcing a label.
+> The full story is in docs/eval-results.md, KNOWN_LIMITATIONS.md, and ADR-010 through ADR-013.
+> Do not "restore" hybrid/reranker/forced-prediction without re-reading those.
 
 ## Architecture
-3-stage LangGraph pipeline (using real CFPB public data — 92k deduplicated complaints
-across 5 product categories):
+The deployed path is a single retrieval + tally step; the LLM pipeline exists but is gated off.
+Real CFPB public data — 92k deduplicated complaints across 5 product categories.
 
-1. **Contextual Enrichment** — LLM extracts structured metadata (product, issue, severity
-   signals) from the complaint text. Output is a Pydantic model used as metadata filters
-   in Stage 2.
-2. **Hybrid Retrieval** — BM25 + dense embeddings + metadata filtering + cross-encoder
-   reranker. Finds similar past complaints in the CFPB corpus. Returns top-5 with scores.
-3. **Resolution Intelligence** — LLM analyzes original complaint + retrieved similar
-   complaints. Predicts likely resolution outcome (e.g. "Closed with monetary relief")
-   with confidence score and cited evidence IDs.
+- **`/analyze` (default, no LLM)** — embed the complaint (BGE-small), dense-retrieve its top-5
+  neighbors from the vector index (leave-one-out), and **count their known `company_response`
+  outcomes**. Returns `outcome_distribution` + `relief_fraction` + cited evidence. The relief
+  fraction is a usable binary relief-vs-not signal (ROC-AUC 0.69).
+- **`/predict` (gated behind `ENABLE_LLM_PREDICT`, default false)** — the 3-stage LangGraph
+  pipeline: (1) **Enrich** — Groq LLM extracts structured metadata; (2) **Retrieve** — same dense
+  retrieval; (3) **Predict** — Groq LLM reasons over the evidence for a single resolution label
+  with confidence + cited IDs. Off by default because it beat no baseline and spends Groq's
+  capped daily tokens.
 
-Example Stage 3 output:
-> "3 out of 5 similar complaints about overdraft fees resulted in monetary relief.
-> This issue type has strong precedent for fee reversal."
-> predicted_resolution: "Closed with monetary relief", confidence: 0.75
+Example `/analyze` output:
+> 5 similar overdraft-fee complaints: 4 "Closed with explanation", 1 "Closed with monetary
+> relief" → relief_fraction 0.2, with the 5 cited past complaints.
 
 ## Data Pipeline
 ```
@@ -47,19 +54,30 @@ ingestion — they would dominate retrieval results. See ADR-007.
 - **Abstraction layers**: Vector DB and LLM calls have interfaces so implementations can be swapped
 
 ## Eval Metrics
-- **Recall@k**: Does retrieval find genuinely similar complaints?
-- **Resolution prediction accuracy**: Does Stage 3 correctly predict the company_response
-  category? Ground truth = actual `company_response` field from CFPB data (no manual
-  labeling needed).
-- **Faithfulness**: Does Stage 3 cite only information from retrieved evidence? (LLM-as-judge)
+- **Recall@k / MRR@k**: Does retrieval find genuinely similar complaints? Measured on eval set
+  v2 (pooled, unbiased — see ADR-010). Dense-only BGE/MiniLM ~0.46 recall@5; hybrid and
+  reranking scored lower (negative findings).
+- **Resolution prediction accuracy / macro-F1** (Stage 3, gated path): vs a majority-class
+  baseline. Ground truth = actual `company_response`. Result: the LLM predictor loses to the
+  baseline — documented negative finding, not a headline metric.
+- **Relief-vs-not ROC-AUC** (the shipped signal): fraction of top-5 neighbors whose outcome is
+  any relief, as a binary score; 0.69 on eval v2, computed by counting (no LLM).
+- **Faithfulness** (PLANNED, not yet implemented): would Stage 3 cite only retrieved evidence?
+  (LLM-as-judge). Deferred — see LATER.md.
 
 ## Tech Stack
-- Python 3.11+, LangGraph, FastAPI
-- Embeddings: sentence-transformers — all-MiniLM-L6-v2 as the v0 baseline, BGE-small-en-v1.5 as the measured upgrade (ADR-009). Vectors are normalized; vector store uses cosine distance (ADR-008).
-- Vector DB: ChromaDB (dev) / Qdrant (prod)
-- Reranker: cross-encoder/ms-marco-MiniLM-L-6-v2
-- LLM: GPT-4o (enrichment + resolution intelligence)
-- Observability: Langfuse
+- Python 3.11+, LangGraph, FastAPI (+ Gradio demo)
+- Embeddings: sentence-transformers — **BGE-small-en-v1.5 is deployed** (its vectors are the
+  Qdrant index); all-MiniLM-L6-v2 is a tied eval baseline (ADR-009). Vectors normalized; cosine
+  distance (ADR-008).
+- Vector DB: ChromaDB (local dev) / **Qdrant Cloud (prod)** — migration verified by eval parity
+  (ADR-011).
+- Reranker: **none** — cross-encoder reranking was tested and removed (reduced recall on this
+  symmetric-similarity task; see eval-results.md / KNOWN_LIMITATIONS.md).
+- LLM: **Groq `openai/gpt-oss-120b`** via its OpenAI-compatible API (not OpenAI/GPT-4o).
+  Only used on the gated `/predict` path. Free tier caps at 200k tokens/day.
+- Observability: Langfuse (per-stage latency + token cost)
+- Deployment: Hugging Face Spaces + Qdrant Cloud (ADR-013)
 - Data: CFPB Consumer Complaint Database
 
 ## Code Style
@@ -99,8 +117,12 @@ Notes:
 # Run tests
 pytest tests/ -v
 
-# Run eval suite
-python -m src.evaluation.run_evals
+# Run eval suite (retrieval recall@k/MRR on eval set v2)
+python -m src.evaluation.run_retrieval_evals --retriever dense --eval-set data/eval/eval_set_v2.json
+# Deterministic relief-vs-not signal (no LLM)
+python -m src.evaluation.relief_signal_eval
+# Resolution-prediction eval (gated LLM path, vs majority baseline)
+python -m src.evaluation.predict_eval --retriever dense --n 100
 
 # Start dev server
 uvicorn src.api.main:app --reload --port 8000
